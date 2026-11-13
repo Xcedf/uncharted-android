@@ -265,6 +265,11 @@ private:
     void MapBacking(vk::DeviceMemory memory,u32 type_index);
     bool ReadMapped(VAddr address,u64 size);
 
+    struct SideTicket;
+    bool BeginSideDownload(VAddr page, u64 length, SideTicket& ticket);
+    void WaitSideDownload(SideTicket& ticket);
+    bool FinishSideDownload(SideTicket& ticket);
+
     std::unique_ptr<FaultManager> fault_manager;
     std::unique_ptr<Buffer> bda_pagetable_buffer;
 

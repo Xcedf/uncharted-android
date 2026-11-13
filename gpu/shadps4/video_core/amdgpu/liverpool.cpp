@@ -432,7 +432,6 @@ void Liverpool::Process(std::stop_token stoken) {
                 task.destroy();
                 round_retired = true;
                 if (curr_qid == GfxQueueId) {
-                    Vulkan::SubmitCheckPop();
                     // bbport: the recorded work is submitted after a guest command buffer once
                     // BB_FLUSH_EVERY_DRAWS (250; 0: off) draws accumulated, not only at the end of
                     // the frame (submit done): the GPU starts on the frame earlier, so a guest
