@@ -1066,6 +1066,7 @@ void Rasterizer::CollectRingBindings(const Shader::Info& stage, const PreparedDr
             }
             continue;
         }
+        VideoCore::NoteAsyncAccess("constant ring copy", address, size, false, true);
         copy(index, nullptr, address, size);
     }
 }
