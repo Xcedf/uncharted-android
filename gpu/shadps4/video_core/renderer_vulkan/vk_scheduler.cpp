@@ -53,6 +53,8 @@ bool Scheduler::OnRecorderThread() {
 
 extern void (*g_gpu_stall_report)();
 bool (*g_draw_pipe_busy)() = nullptr;
+/// bbport: runs the draws handed to the recording thread so far (set by the rasterizer).
+void (*g_drain_draw_pipe)() = nullptr;
 // g2-arm64: the latest GPU checkpoint recorded (BB_GPU_CHECKPOINTS, vk_rasterizer.cpp).
 u64 (*g_checkpoint_seq)() = nullptr;
 

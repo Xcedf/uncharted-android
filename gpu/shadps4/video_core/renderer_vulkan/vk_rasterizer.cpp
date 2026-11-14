@@ -61,6 +61,7 @@ u32 ConstCheckHash() {
 } // namespace
 
 extern bool (*g_draw_pipe_busy)();
+extern void (*g_drain_draw_pipe)();
 extern bool g_gpu_checkpoints;
 extern bool g_gpu_checkpoints_nv;
 extern bool g_gpu_sync;
@@ -321,6 +322,7 @@ Rasterizer::Rasterizer(const Instance& instance_, Scheduler& scheduler_, Runtime
     static Rasterizer* busy_check;
     busy_check = this;
     g_draw_pipe_busy = [] { return busy_check->OnStageA() && !busy_check->DrawPipeIdle(); };
+	g_drain_draw_pipe = [] { busy_check->DrainDrawPipe(); };
     // g2-arm64: the thread owning the caches (bbport_owner_wait.h): stage B inside a packet, or
     // stage A with the draw pipe empty.
     BbOwnerWait::owns_caches = [] {

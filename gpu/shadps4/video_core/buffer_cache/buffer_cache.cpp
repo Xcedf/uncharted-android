@@ -44,6 +44,7 @@ using Vulkan::PrintHostBacktrace;
 
 namespace Vulkan {
 extern void (*g_gpu_crash_context)();
+extern void (*g_drain_draw_pipe)(); // vk_scheduler.cpp
 }
 
 namespace VideoCore {
@@ -381,6 +382,10 @@ bool BufferCache::FinishSideDownload(SideTicket& ticket, VAddr fault_page, u64 f
     for (const VAddr at : ticket.pages) {
         if (!memory_tracker->IsRegionGpuModified(at, TRACKER_BYTES_PER_PAGE)) {
             continue; // handed back meanwhile
+        }
+        const bool faulting = at >= fault_page && at < fault_page + fault_length;
+        if (!faulting && memory_tracker->IsRegionCpuModified(at, TRACKER_BYTES_PER_PAGE)) {
+            continue; // a neighbour with guest data waiting for upload: not overwritten
         }
         if (memory_tracker->LatestGpuWriteTick(at, TRACKER_BYTES_PER_PAGE) > ticket.write_tick) {
             if (at >= fault_page && at < fault_page + fault_length) {
@@ -993,6 +998,12 @@ void BufferCache::InvalidateMemory(VAddr device_addr, u64 size, bool assume_lock
             if (started) {
                 WaitSideDownload(ticket);
                 liverpool->SendCommand<true>([&] {
+                    // Draws queued for the recording thread while the guest waited expect the
+                    // GPU's data in these pages: they run before the pages are the guest's
+                    // again (else they upload what the guest writes next: one-frame spikes).
+                    if (Vulkan::g_drain_draw_pipe) {
+                        Vulkan::g_drain_draw_pipe();
+                    }
                     if (!FinishSideDownload(ticket, page, length)) {
                         resolve(); // the GPU wrote a page meanwhile: decide again
                         return;
