@@ -574,7 +574,7 @@ bool BufferCache::FinishSideDownload(SideTicket& ticket, VAddr fault_page, u64 f
                 const VAddr page = Common::AlignDown(at, TRACKER_BYTES_PER_PAGE);
                 const VAddr part_end = std::min<VAddr>(end, page + TRACKER_BYTES_PER_PAGE);
                 if (std::ranges::find(owned, page) != owned.end()) {
-                    WriteBackGpuData(std::bit_cast<u8*>(at), staging + copy.dstOffset + (at - start),
+                    memory->TryWriteBacking(std::bit_cast<u8*>(at), staging + copy.dstOffset + (at - start),
                                      part_end - at);
                 }
                 at = part_end;
