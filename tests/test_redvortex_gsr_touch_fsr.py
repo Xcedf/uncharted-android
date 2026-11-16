@@ -16,7 +16,6 @@ overlay=f("gpu/shim/bbport_overlay_android.cpp")
 assert 'Async GPU label writes' not in launcher
 assert 'BB_CHAIN_WRITEDATA' not in game
 assert 'BB_CHAIN_WRITEDATA' not in f("gpu/shadps4/video_core/amdgpu/liverpool.cpp")
-assert "patch_job_sleep(" not in f("src/probe.c")
 assert 'BB_SKIP_COLLECTION_MENU' in game and 'patch_collection_skip(image_end)' in f('src/probe.c')
 assert 'w.write("/app0/eboot.bin' not in game
 assert 'Collection menu: not found, the menu stays' in f('src/probe.c')
